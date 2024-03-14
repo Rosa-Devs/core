@@ -29,7 +29,7 @@ func (c *Core) createNewAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// For frontend
-	c.Start("")
+	c.StartManager()
 
 	utils.Send(w, 200)
 	return

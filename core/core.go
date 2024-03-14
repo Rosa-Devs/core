@@ -57,35 +57,39 @@ func (d *Core) GetProfile() string {
 	}
 	return d.profile.Name
 }
-
-func (d *Core) Start(localapi string) string {
-	// Start local serivce api for client app
+func (c *Core) StartApi(localapi string) string {
 	var err error
-	if !d.localApiState {
-		d.localApiAddr, err = d.startLocalApi(localapi)
+	if !c.localApiState {
+		c.localApiAddr, err = c.startLocalApi(localapi)
 		if err != nil {
 			log.Println("Fail to bind local api!", err)
 			return ""
 		}
-		d.localApiState = true
+		c.localApiState = true
 	}
+	return c.localApiAddr
+}
+
+func (d *Core) StartManager() {
+	// Start local serivce api for client app
 
 	d.stopCh = make(chan struct{})
 	d.EventCh = make(chan struct{}, 1000)
 	d.MessageValidateСache = make(map[string]bool)
 
+	var err error
 	d.profile, err = models.LoadFromFile(d.Store.Profile)
 	if err != nil {
 		fmt.Println("Error loading profile:", err)
 		d.profile = models.Profile{
 			Id: "UAUNT",
 		}
-		return ""
+		return
 	}
 
 	if d.Started == true {
 		log.Println("Dbs Manager already started..")
-		return ""
+		return
 	}
 	d.Started = true
 
@@ -101,7 +105,7 @@ func (d *Core) Start(localapi string) string {
 
 	if d.host.InitHost(d.ctx) != nil {
 		log.Println("Failt to init HOST module. Crytical error")
-		return ""
+		return
 	}
 
 	d.Driver = &db.DB{
@@ -179,5 +183,4 @@ func (d *Core) Start(localapi string) string {
 
 	log.Println("All database are create and ready to use")
 
-	return d.localApiAddr
 }

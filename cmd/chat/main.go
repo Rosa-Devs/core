@@ -17,8 +17,8 @@ func main() {
 		Store: *Store,
 	}
 
-	localadrr := app.Start(":8080")
-
+	localadrr := app.StartApi(":8080")
+	app.StartManager()
 	log.Println("Local API addr is:", localadrr)
 
 	select {}
