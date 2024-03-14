@@ -14,9 +14,27 @@ func (s *Core) startLocalApi(ip string) (string, error) {
 
 	s.registerLocalApi()
 
+	corsMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Add CORS headers to allow requests from any origin
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+			// If it's a preflight request, respond with 200 OK
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			// Call the next handler in the chain
+			next.ServeHTTP(w, r)
+		})
+	}
+
 	// Create an HTTP server with the specified handler
 	s.httpServer = &http.Server{
-		Handler: s.router,
+		Handler: corsMiddleware(s.router),
 	}
 
 	// Start the HTTP server
