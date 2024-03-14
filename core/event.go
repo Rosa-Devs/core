@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -13,25 +14,47 @@ import (
 )
 
 func (c *Core) listenEvents(w http.ResponseWriter, r *http.Request) {
-	// Set headers for Server-Sent Events
+	// Set the response header to indicate SSE content type
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	// Listen for events
+	// Create a channel to send events to the client
+	fmt.Println("Client connected")
+	eventChan := make(chan string)
+	c.localApiClient[eventChan] = struct{}{} // Add the client to the clients map
+	defer func() {
+		delete(c.localApiClient, eventChan) // Remove the client when they disconnect
+		close(eventChan)
+	}()
+
+	// Listen for client close and remove the client from the list
+	notify := w.(http.CloseNotifier).CloseNotify()
+	go func() {
+		<-notify
+		fmt.Println("Client disconnected")
+	}()
+
+	// Continuously send data to the client
 	for {
-		select {
-		case <-r.Context().Done():
-			log.Println("Connection closed")
-			return
-		case <-c.EventCh:
-			// Write event to client
-			if _, err := w.Write([]byte("data: update\n\n")); err != nil {
-				log.Println("Error writing to client:", err)
-				return
-			}
-			w.(http.Flusher).Flush() // Flush response to ensure it's sent immediately
-		}
+		data := <-eventChan
+		fmt.Fprintf(w, "data: %s\n\n", data)
+		w.(http.Flusher).Flush()
+		fmt.Println("Sending data to client:", data)
+
+		// Simulate some events being sent periodically
+		time.Sleep(1 * time.Second)
+	}
+
+}
+
+// broadcast sends an event to all connected clients
+func (c *Core) broadcast(data string) {
+	for client := range c.localApiClient {
+		client <- data
 	}
 }
 
@@ -65,13 +88,8 @@ func (c *Core) databaseUpdateEventServer(ctx context.Context, m manifest.Manifes
 				// But we need a cross platform solution
 				//runtime.EventsEmit(M.wailsctx, "update")
 				log.Println("Reviced event from chanel")
-				// Send event to event channel
-				select {
-				case C.EventCh <- struct{}{}:
-				default:
-					// If event channel is full, drop the event
-					log.Println("Event channel is full, dropping event.")
-				}
+
+				C.broadcast("update")
 
 				time.Sleep(time.Second)
 				//log.Println("Event")

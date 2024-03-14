@@ -45,10 +45,11 @@ type Core struct {
 	Service_DB db.Database
 
 	// Event server
-	stopCh     chan struct{}
-	waitGrp    sync.WaitGroup
-	cancelFunc context.CancelFunc
-	EventCh    chan struct{}
+	stopCh         chan struct{}
+	waitGrp        sync.WaitGroup
+	cancelFunc     context.CancelFunc
+	EventCh        chan struct{}
+	localApiClient map[chan string]struct{}
 }
 
 func (d *Core) GetProfile() string {
@@ -58,6 +59,7 @@ func (d *Core) GetProfile() string {
 	return d.profile.Name
 }
 func (c *Core) StartApi(localapi string) string {
+	c.localApiClient = make(map[chan string]struct{})
 	var err error
 	if !c.localApiState {
 		c.localApiAddr, err = c.startLocalApi(localapi)
