@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// Cereate app maneger instance
-	Store, err := store.NewStore("")
+	Store, err := store.NewStore("/home/mihalic2040/rosa_test")
 	if err != nil {
 		log.Panic("Fail to create store:", err)
 	}
@@ -17,7 +17,7 @@ func main() {
 		Store: *Store,
 	}
 
-	localadrr := app.StartManager(":8080")
+	localadrr := app.Start(":8080")
 
 	log.Println("Local API addr is:", localadrr)
 

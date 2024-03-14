@@ -10,7 +10,6 @@ import (
 
 // StartServer method initializes and starts the HTTP server
 func (s *Core) startLocalApi(ip string) (string, error) {
-
 	s.router = http.NewServeMux()
 
 	s.registerLocalApi()
@@ -38,7 +37,7 @@ func (s *Core) startLocalApi(ip string) (string, error) {
 
 	// Get the actual port that was assigned
 	addr := listener.Addr().(*net.TCPAddr)
-	//fmt.Println("Server listening on", addr.String())
+	// fmt.Println("Server listening on", addr.String())
 	go func() {
 		err = s.httpServer.Serve(listener)
 		if err != nil {
@@ -48,9 +47,25 @@ func (s *Core) startLocalApi(ip string) (string, error) {
 	}()
 
 	return addr.String(), nil
-
 }
 
 func (c *Core) registerLocalApi() {
 	// c.router.HandleFunc("/", c.TestEndpoint)
+	c.router.HandleFunc("POST /aunth/create", c.createNewAccount)
+	c.router.HandleFunc("GET /aunth/autorized", c.autorized)
+	c.router.HandleFunc("POST /aunth/trust", c.trust)
+
+	//Channels
+	c.router.HandleFunc("POST /channel/create", c.createNewManifest)
+	c.router.HandleFunc("POST /channel/delete", c.deleteManifest)
+	c.router.HandleFunc("POST /channel/add", c.addManifets)
+	c.router.HandleFunc("GET /channel/list", c.listManifest)
+
+	//EVENTS
+	c.router.HandleFunc("POST /event/change", c.changeListeningDb)
+	c.router.HandleFunc("GET /event/listen", c.listenEvents)
+
+	//MESSAGE
+	c.router.HandleFunc("POST /message/new", c.newMessage)
+	c.router.HandleFunc("POST /message/list", c.messagesLit)
 }

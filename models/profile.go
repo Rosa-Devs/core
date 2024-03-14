@@ -102,7 +102,7 @@ func CreateProfile(name string, Avatar string) (Profile, error) {
 	pubkey_bytes := x509.MarshalPKCS1PublicKey(publicKey)
 	pubkey_pem := pem.EncodeToMemory(
 		&pem.Block{
-			Type:  "RSA PRIVATE KEY",
+			Type:  "RSA PUBLIC KEY",
 			Bytes: pubkey_bytes,
 		},
 	)
@@ -131,6 +131,7 @@ func (p *ProfileStorePublic) ValidateMsg(m Message) bool {
 
 	block, _ := pem.Decode(pubKeyBytes)
 	if block == nil {
+		log.Println("Failed to decode block from key")
 		return false
 	}
 
@@ -148,10 +149,12 @@ func (p *ProfileStorePublic) ValidateMsg(m Message) bool {
 		return false
 	}
 
+	// Hash the message data
 	hashed := sha256.Sum256([]byte(m.Data + m.Time + m.SenderId))
+
 	err = rsa.VerifyPKCS1v15(pubKey, crypto.SHA256, hashed[:], signature)
 	if err != nil {
-		//fmt.Println("Signature verification failed:", err)
+		fmt.Println("Signature verification failed:", err)
 		return false
 	}
 
@@ -175,8 +178,10 @@ func (p *Profile) Sign(m *Message) error {
 		return fmt.Errorf("error parsing private key: %v", err)
 	}
 
-	// Sign the message
+	// Hash the message data
 	hashed := sha256.Sum256([]byte(m.Data + m.Time + m.SenderId))
+
+	// Sign the message
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privKey, crypto.SHA256, hashed[:])
 	if err != nil {
 		return fmt.Errorf("error signing message: %v", err)
@@ -219,4 +224,14 @@ func WriteToFile(file string, profile Profile) error {
 	}
 
 	return nil
+}
+
+func (p *ProfileStorePublic) ProfileFromMap(data map[string]interface{}) {
+	// Assuming your map contains fields like "type", "name", "id", and "pub"
+	// Adjust these according to your actual map structure
+	p.Type, _ = data["type"].(string)
+	p.Name, _ = data["name"].(string)
+	p.Id, _ = data["id"].(string)
+	p.PubKey, _ = data["pub"].(string)
+	p.Avatar, _ = data["avatar"].(string)
 }

@@ -14,7 +14,7 @@ func TestProfileSignAndValidate(t *testing.T) {
 
 	message := Message{
 		DataType: 1,
-		Sender:   profile.Name,
+		// Sender:   profile.Id,
 		SenderId: profile.Id,
 		Data:     "Hello, World!",
 		Time:     "2022-02-15T12:34:56Z",
