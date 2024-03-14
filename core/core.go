@@ -48,7 +48,7 @@ type Core struct {
 	stopCh     chan struct{}
 	waitGrp    sync.WaitGroup
 	cancelFunc context.CancelFunc
-	eventCh    chan struct{}
+	EventCh    chan struct{}
 }
 
 func (d *Core) GetProfile() string {
@@ -71,7 +71,7 @@ func (d *Core) Start(localapi string) string {
 	}
 
 	d.stopCh = make(chan struct{})
-	d.eventCh = make(chan struct{}, 1000)
+	d.EventCh = make(chan struct{}, 1000)
 	d.MessageValidateСache = make(map[string]bool)
 
 	d.profile, err = models.LoadFromFile(d.Store.Profile)

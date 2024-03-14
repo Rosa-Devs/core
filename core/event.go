@@ -24,7 +24,7 @@ func (c *Core) listenEvents(w http.ResponseWriter, r *http.Request) {
 		case <-r.Context().Done():
 			log.Println("Connection closed")
 			return
-		case <-c.eventCh:
+		case <-c.EventCh:
 			// Write event to client
 			if _, err := w.Write([]byte("update\n\n")); err != nil {
 				log.Println("Error writing to client:", err)
@@ -67,7 +67,7 @@ func (c *Core) databaseUpdateEventServer(ctx context.Context, m manifest.Manifes
 				log.Println("Reviced event from chanel")
 				// Send event to event channel
 				select {
-				case C.eventCh <- struct{}{}:
+				case C.EventCh <- struct{}{}:
 				default:
 					// If event channel is full, drop the event
 					log.Println("Event channel is full, dropping event.")
