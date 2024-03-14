@@ -26,7 +26,7 @@ func (c *Core) listenEvents(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-c.EventCh:
 			// Write event to client
-			if _, err := w.Write([]byte("update\n\n")); err != nil {
+			if _, err := w.Write([]byte("data: update\n\n")); err != nil {
 				log.Println("Error writing to client:", err)
 				return
 			}
