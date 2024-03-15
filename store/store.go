@@ -18,6 +18,16 @@ type Store struct {
 func NewStore(custom string) (*Store, error) {
 	var homePath string
 
+	if custom != "" {
+		homePath = custom + "/rosa"
+
+		return &Store{
+			Global:   homePath,
+			Profile:  homePath + "/profile.json",
+			Database: homePath + "/database",
+		}, nil
+	}
+
 	switch oss := runtime.GOOS; oss {
 	case "darwin", "linux":
 		homePath = os.Getenv("HOME")
@@ -31,10 +41,6 @@ func NewStore(custom string) (*Store, error) {
 	}
 
 	homePath = homePath + "/rosa"
-
-	if custom != "" {
-		homePath = custom + "/rosa"
-	}
 
 	if _, err := os.Stat(homePath); os.IsNotExist(err) {
 		// Directory does not exist, create it
