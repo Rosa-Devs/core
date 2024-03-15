@@ -21,6 +21,17 @@ func NewStore(custom string) (*Store, error) {
 	if custom != "" {
 		homePath = custom + "/rosa"
 
+		if _, err := os.Stat(homePath); os.IsNotExist(err) {
+			// Directory does not exist, create it
+			err := os.Mkdir(homePath, os.FileMode(0775))
+			if err != nil {
+				log.Fatal("Error creating directory:", err)
+			}
+			log.Println("DataStoreFolder created with permissions 775")
+		} else {
+			log.Println("DataStoreFolder already exists")
+		}
+
 		return &Store{
 			Global:   homePath,
 			Profile:  homePath + "/profile.json",
