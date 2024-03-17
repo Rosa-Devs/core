@@ -46,6 +46,15 @@ func (c *Core) autorized(w http.ResponseWriter, r *http.Request) {
 	utils.Send(w, true)
 }
 
+func (c *Core) account(w http.ResponseWriter, r *http.Request) {
+	if c.Started == false {
+		log.Println("Db manager is not started")
+		http.Error(w, "Db manager is not started", http.StatusBadRequest)
+	}
+
+	utils.Send(w, c.profile.GetPublic())
+}
+
 func (c *Core) trust(w http.ResponseWriter, r *http.Request) {
 
 	req := new(models.TrustReq)

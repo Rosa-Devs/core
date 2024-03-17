@@ -72,6 +72,7 @@ func (c *Core) registerLocalApi() {
 	c.router.HandleFunc("POST /aunth/create", c.createNewAccount)
 	c.router.HandleFunc("GET /aunth/autorized", c.autorized)
 	c.router.HandleFunc("POST /aunth/trust", c.trust)
+	c.router.HandleFunc("GET /aunth/account", c.account)
 
 	//Channels
 	c.router.HandleFunc("POST /channel/create", c.createNewManifest)
