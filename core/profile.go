@@ -38,9 +38,11 @@ func (c *Core) createNewAccount(w http.ResponseWriter, r *http.Request) {
 func (c *Core) autorized(w http.ResponseWriter, r *http.Request) {
 	if !c.Started {
 		utils.Send(w, false)
+		return
 	}
 	if c.profile.Id == "UAUNT" {
 		utils.Send(w, false)
+		return
 	}
 
 	utils.Send(w, true)
