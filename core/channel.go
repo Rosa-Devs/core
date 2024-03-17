@@ -82,6 +82,7 @@ func (c *Core) addManifets(w http.ResponseWriter, r *http.Request) {
 	}
 	db := c.Driver.GetDb(*m)
 	db.StartWorker(60)
+	c.registerUser(&db)
 	c.dbs[*m] = &db
 
 	err = pool.Record(jsonData)
