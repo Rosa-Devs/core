@@ -41,7 +41,7 @@ func (c *Core) listenEvents(w http.ResponseWriter, r *http.Request) {
 	// Continuously send data to the client
 	for {
 		data := <-eventChan
-		fmt.Fprintf(w, "data: %s\n\n", data)
+		fmt.Fprintf(w, "event: update\n\n")
 		w.(http.Flusher).Flush()
 		fmt.Println("Sending data to client:", data)
 
