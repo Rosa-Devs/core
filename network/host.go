@@ -42,6 +42,8 @@ func (h *Host) InitHost(ctx context.Context) error {
 		return err
 	}
 
+	// log.Println(h.H.Addrs())
+
 	//Cerate new Gossip Router
 	h.Ps, err = pubsub.NewGossipSub(h.ctx, h.H)
 	if err != nil {

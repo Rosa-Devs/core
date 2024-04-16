@@ -68,6 +68,9 @@ func (s *Core) startLocalApi(ip string) (string, error) {
 }
 
 func (c *Core) registerLocalApi() {
+	// Metrics
+	c.router.HandleFunc("GET /metrics", c.metrics)
+
 	// c.router.HandleFunc("/", c.TestEndpoint)
 	c.router.HandleFunc("POST /aunth/create", c.createNewAccount)
 	c.router.HandleFunc("GET /aunth/autorized", c.autorized)
